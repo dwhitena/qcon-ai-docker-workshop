@@ -57,9 +57,85 @@ Ok, with that soapbox out of the way, let's look at the other two layers of our 
 
 Finally, we need to add our code to the image, the `ADD ...` instruction tells Docker to add `train.py` to the `/code/train.py` location in the image.   
 
+Can you think of ways to make the image built from this Dockerfile smaller or more reproducible? A smaller image will mean it will download to target machine and initiate our work faster. It will also be easier to remove and update. Also, what happens if the `python` base image is updated? How can we keep this constant at a specific version? Try to create a modified version of the Dockerfile that:
+
+- Utilizes a specific "tagged" version of the `python` base image,
+- Utilizes a smaller version of the `python` base image, 
+- Utilizes a different base image, and/or
+- Cleans up other things in the image that aren't used.
+
 ## 3. Building a Docker image
 
+Now that we have our Dockerfile, we can build our Docker image for model training. First, we need to choose a *tag* for our Docker image. For now, think of this tag as the name of the Docker image (although we will see that it has more utility later). 
+
+To build our image, run the following from [this directory](.) in the cloned version of this repo:
+
+```sh
+$ docker build -t <the name you chose> .
+```
+
+The `-t <the name you chose>` argument tells Docker to tag your image as `<the name you chose>`, and the `.` at the end tells Docker to look for the Dockerfile in this directory. Note, you can also specify, via other flags, a Dockerfile in a different directory and/or a Dockerfile named something other than Dockerfile.
+
+For example, I can create a `model-training` image by running:
+
+```sh
+$ docker build -t model-training .
+Sending build context to Docker daemon  32.77kB
+Step 1/3 : FROM python
+latest: Pulling from library/python
+f2b6b4884fc8: Pull complete
+4fb899b4df21: Pull complete
+74eaa8be7221: Pull complete
+2d6e98fe4040: Pull complete
+414666f7554d: Pull complete
+135a494fed80: Pull complete
+6ca3f38fdd4d: Pull complete
+d67ff15d2a78: Pull complete
+Digest: sha256:c021d6c587ea435509775c3a4da58d42287f630cb4ae6e0bc97ec839d9e0da3a
+Status: Downloaded newer image for python:latest
+ ---> d21927554614
+Step 2/3 : RUN pip install -U numpy scipy scikit-learn pandas
+ ---> Running in a77a8ec01d94
+Collecting numpy
+  Downloading numpy-1.14.2-cp36-cp36m-manylinux1_x86_64.whl (12.2MB)
+Collecting scipy
+  Downloading scipy-1.0.0-cp36-cp36m-manylinux1_x86_64.whl (50.0MB)
+Collecting scikit-learn
+  Downloading scikit_learn-0.19.1-cp36-cp36m-manylinux1_x86_64.whl (12.4MB)
+Collecting pandas
+  Downloading pandas-0.22.0-cp36-cp36m-manylinux1_x86_64.whl (26.2MB)
+Collecting pytz>=2011k (from pandas)
+  Downloading pytz-2018.3-py2.py3-none-any.whl (509kB)
+Collecting python-dateutil>=2 (from pandas)
+  Downloading python_dateutil-2.7.0-py2.py3-none-any.whl (207kB)
+Collecting six>=1.5 (from python-dateutil>=2->pandas)
+  Downloading six-1.11.0-py2.py3-none-any.whl
+Installing collected packages: numpy, scipy, scikit-learn, pytz, six, python-dateutil, pandas
+Successfully installed numpy-1.14.2 pandas-0.22.0 python-dateutil-2.7.0 pytz-2018.3 scikit-learn-0.19.1 scipy-1.0.0 six-1.11.0
+You are using pip version 9.0.1, however version 9.0.2 is available.
+You should consider upgrading via the 'pip install --upgrade pip' command.
+Removing intermediate container a77a8ec01d94
+ ---> 646a15f6e4df
+Step 3/3 : ADD train.py /code/train.py
+ ---> 3da96f640402
+Successfully built 3da96f640402
+Successfully tagged model-training:latest
+```
+
+You will notice in the output that Docker: pulls your base image, runs your commands to install dependencies, and then adds your code. The docker image will then be shown when you list the images in your local registry:
+
+```sh
+$ docker images
+REPOSITORY                         TAG                 IMAGE ID            CREATED             SIZE
+model-training                     latest              3da96f640402        3 minutes ago       1.21GB
+dwhitena/minimal-jupyter           latest              1770383288b4        25 hours ago        203MB
+python                             latest              d21927554614        3 days ago          688MB
+tensorflow/tensorflow              latest              414b6e39764a        2 weeks ago         1.27GB
+```
+
 ## 4. Pushing the image to a registry (optional)
+
+One of the goals of Docker-izing our apps is to easily port them to other environments where they will run. 
 
 ## 5. Running model training in a container
 

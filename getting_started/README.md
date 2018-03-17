@@ -148,6 +148,8 @@ There are quite a variety of options that you can specify when running your Dock
 
 To stop this running container, you can run `docker rm -f <container ID>` from the terminal where you ran `docker ps`. Or you should be able to close it via `CTRL + C` in the terminal where you ran the `docker run` command. 
 
+**Note** - You could recreate this process on any machine in the cloud or on premise, as long as that machine has Docker installed. You wouldn't have to install the right version of Jupyter, ipython, etc. You just need to `docker run`. In fact, you can `docker run` TensorFlow, PyTorch, R, ggplot, Postgres, MongoDB, Spark, or whatever you want, without messing with any dependencies. That's awesome! Hopefully, you are beginning to see the power and flexibility of containers. 
+
 ## Resources
 
 - [Getting started with Docker](https://docs.docker.com/get-started/)

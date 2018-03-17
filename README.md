@@ -1,8 +1,8 @@
 ![Alt text](QCon_AI_Docker.png)
 
-# Docker-izing your Data Science Apps - QCon AI CodeLab 2018
+# Docker-izing your Data Science Apps
 
-This repo includes all of the materials and documentation that you will need for the "Docker-izing your Data Science Apps" CodeLab at QCon AI 2018.  In this CodeLab, we will learn how to put your data science applications in Docker images and run those as containers on any infrastructure. These skills will help you maintain reproducibility and increase efficiency as you deploy your applications, and they will help you standardize your code to better fit into modern infrastructures, CI/CD tools, and DevOps practices. 
+This repo includes all of the materials and documentation that you will need for the "Docker-izing your Data Science Apps" CodeLab at [QCon AI 2018](https://qcon.ai/).  In this CodeLab, we will learn how to put your data science applications in Docker images and run those as containers on any infrastructure. These skills will help you maintain reproducibility and increase efficiency as you deploy your applications, and they will help you standardize your code to better fit into modern infrastructures, CI/CD tools, and DevOps practices. 
 
 The CodeLab is compiled such that it can be completed independently. To start, read the [Prerequisites](#prerequisites) section and then follow the first link below (`1. Why Docker...`). If you have any difficulties or questions, the instructor [Daniel Whitenack](https://twitter.com/dwhitena) will be holding office hours at QCon AI on [Tuesday, April 10th](https://qcon.ai/schedule/qconai2018/tabular).
 

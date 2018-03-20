@@ -192,10 +192,10 @@ Well, Docker provides the ability to mount a "volume" into container. By mountin
 From the root of this repo, you can run the model training in the container as follows:
 
 ```sh
-$ docker run -v /path/to/this/GH/repo/data:/data <your image tag> python /code/train.py /data /data
+$ docker run -v /path/to/this/GH/repo/model_training/data:/data <your image tag> python /code/train.py /data /data
 ```  
 
-Where you would replace `<your image tag>` with the name of the Docker image you built in step 3 (`dwhitena/model-training:v1.0.0` in my case). `-v /path/to/this/GH/repo/data:/data` maps the absolute path to the [data directory](data) on your local machine to `/data` inside the container (you can use the `pwd` command to find the absolute path to that directory on your local machine). `python /code/train.py /data /data` is the command that we are running in the container to perform the training. 
+Where you would replace `<your image tag>` with the name of the Docker image you built in step 3 (`dwhitena/model-training:v1.0.0` in my case). `-v /path/to/this/GH/repo/model_training/data:/data` maps the absolute path to the [data directory](data) on your local machine to `/data` inside the container (you can use the `pwd` command to find the absolute path to that directory on your local machine). `python /code/train.py /data /data` is the command that we are running in the container to perform the training. 
 
 This should only take a second to run. Once it finishes, you should see the model output in your `data` directory:
 

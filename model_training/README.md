@@ -135,8 +135,79 @@ tensorflow/tensorflow              latest              414b6e39764a        2 wee
 
 ## 4. Pushing the image to a registry (optional)
 
-One of the goals of Docker-izing our apps is to easily port them to other environments where they will run. 
+One of the goals of Docker-izing our apps is to easily port them to other environments and make them available for other people to run. Thus, we can't be dependent on our laptop as the registry of our Docker images. We need to store and version our Docker images somewhere else (just like we would store and version our code somewhere like GitHub).
+
+There are many options to choose from when thinking about where you want to store/version your images. You can also make your images public or keep them private (similar to having public/private repos on GitHub). Common choices for registries are [Docker Hub](https://hub.docker.com/), [AWS ECR](https://aws.amazon.com/ecr/), and [Google GCR](https://cloud.google.com/container-registry/). 
+
+To get some practice, create a free user account on Docker Hub. Once you have done that, use the `docker login` command to log into your Docker Hub account locally. 
+
+To push our `model-training` Docker image up to the Docker Hub registry as a public Docker image (that could be pulled down and run elsewhere), we first need to re-tag our image. Remember how we "named" our image `model-training`? Well, there's actually more utility in that tag than just a human readable name. We can tag our image with the format: `<registry, user>/<image name>:<version>`, where:
+
+- `<registry, user>` specifies the registry and/or user associated with the image,
+- `<image name>` specifies the common name of the image, and
+- `<version>` specifies a version of the image.
+
+For example, because I'm `dwhitena` on Docker Hub, I could tag my image as follows:
+
+```sh
+$ docker tag model-training dwhitena/model-training:v1.0.0
+```
+
+and then push it to Docker Hub:
+
+```sh
+$ docker push dwhitena/model-training:v1.0.0
+The push refers to repository [docker.io/dwhitena/model-training]
+dbd827af12d1: Pushed
+eddb03e225ec: Pushed
+aec4f1507d85: Mounted from library/python
+a4a7a3673769: Mounted from library/python
+325a22db58ea: Mounted from library/python
+6e1b48dc2ccc: Mounted from library/python
+ff57bdb79ac8: Mounted from library/python
+6e5e20cbf4a7: Mounted from library/python
+86985c679800: Mounted from library/python
+8fad67424c4e: Mounted from library/python
+v1.0.0: digest: sha256:ca5032522813f696c76e763becec0352f4765015536c6b1ff3f64a0e02898d30 size: 2427
+```
+
+Now v1.0.0 of my Docker image is available on Docker Hub [here](https://hub.docker.com/r/dwhitena/model-training/). Try this with your username and check that the image is pushed to Docker Hub.
+
+**Note** - If you don't utilize a `:<version>` tag for your image (e.g., if I just used `dwhitena/model-training`), your image will be tagged as `latest`. This can be convenient while testing, but you should never use images tagged `latest` in production, because as you update the image you would lose the ability to revert to previous versions, run specific versions, etc.
 
 ## 5. Running model training in a container
 
+Now, to run this Python model training code in the container let's discuss briefly how we would run the code locally. This Python script is configured to be run as follows:
+
+```sh
+$ python train.py <input directory> <output directory>
+```
+
+where `<input directory>` is the directory containing the iris training data set (included [here](data/iris.csv) in this repo) and `<output directory>` is where the Python script will save a serialized version of the trained model.
+
+But how do we get the training data into our container? And how do we get the data out? Moreover, if our container finishes and we remove it, will we lose our data?
+
+Well, Docker provides the ability to mount a "volume" into container. By mounting a local volume into the container, our container will be able to read data from the local filesystm and write data out to local filesystem. Then, once the container is deleted, we will still have the input/output data. We will use the `-v` flag with `docker run ...` to do this volume mapping.
+
+From the root of this repo, you can run the model training in the container as follows:
+
+```sh
+$ docker run -v /path/to/this/GH/repo/data:/data <your image tag> python /code/train.py /data /data
+```  
+
+Where you would replace `<your image tag>` with the name of the Docker image you built in step 3 (`dwhitena/model-training:v1.0.0` in my case). `-v /path/to/this/GH/repo/data:/data` maps the absolute path to the [data directory](data) on your local machine to `/data` inside the container (you can use the `pwd` command to find the absolute path to that directory on your local machine). `python /code/train.py /data /data` is the command that we are running in the container to perform the training. 
+
+This should only take a second to run. Once it finishes, you should see the model output in your `data` directory:
+
+```sh
+$ ls data
+iris.csv  model.pkl model.txt
+```
+
+Yay! We successfully trained an ML model inside of a Docker container.
+
 ## Resources
+
+- [Dockerfile reference](https://docs.docker.com/engine/reference/builder/)
+- [Docker run reference](https://docs.docker.com/engine/reference/run/)
+- [Docker volumes](https://docs.docker.com/storage/volumes/)

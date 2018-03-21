@@ -33,7 +33,7 @@ Then you will be able to run the commands as presented below and modify the resp
 
 To build a Docker image (that will allow us to run `train.py` in a container), we will need to create a Dockerfile. A Dockerfile tells Docker engine how a Docker image should be built. Think about this as a kind of recipe that Docker engine uses to build the image.
 
-A basic Dockerfile for `train.py` is include [here](Dockerfile):
+A basic Dockerfile for `train.py` is included [here](Dockerfile):
 
 ```
 FROM python
@@ -63,6 +63,8 @@ Can you think of ways to make the image built from this Dockerfile smaller or mo
 - Utilizes a smaller version of the `python` base image, 
 - Utilizes a different base image, and/or
 - Cleans up other things in the image that aren't used.
+
+(Hint - [here](https://github.com/pachyderm/pachyderm/blob/master/doc/examples/ml/iris/python/iris-train-python-svm/Dockerfile) is a Dockerfile that will also run our model training code but that is much smaller)
 
 ## 3. Building a Docker image
 

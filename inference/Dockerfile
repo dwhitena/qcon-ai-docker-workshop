@@ -1,22 +1,8 @@
-FROM ubuntu
+FROM python
 
 # install dependencies 
-RUN apt-get -y update --fix-missing && \
-    apt-get install -y \
-        python-pip \
-        python-dev \
-        libev4 \
-        libev-dev \
-        gcc \
-        libxslt-dev \
-        libxml2-dev \
-        libffi-dev \
-        python-numpy \
-        python-scipy && \
-    pip install --upgrade pip && \
-    pip install scikit-learn flask-restful && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN pip install --upgrade pip && \
+    pip install numpy scipy scikit-learn flask-restful 
 
 # add our project
 ADD . /

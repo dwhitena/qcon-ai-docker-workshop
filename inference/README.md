@@ -19,25 +19,11 @@ Similar to model training, I have already developed the Python code we need for 
 A Dockerfile for `api.py` is included [here](Dockerfile):
 
 ```
-FROM ubuntu
+FROM python
 
 # install dependencies
-RUN apt-get -y update --fix-missing && \
-    apt-get install -y \
-        python-pip \
-        python-dev \
-        libev4 \
-        libev-dev \
-        gcc \
-        libxslt-dev \
-        libxml2-dev \
-        libffi-dev \
-        python-numpy \
-        python-scipy && \
-    pip install --upgrade pip && \
-    pip install scikit-learn flask-restful && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN pip install --upgrade pip && \
+    pip install numpy scipy scikit-learn flask-restful
 
 # add our project
 ADD . /
@@ -49,9 +35,9 @@ EXPOSE 5000
 CMD [ "python", "/api.py" ]
 ```
 
-This Dockerfile is a little more complicated than the one we used for model training, but some things should look familiar. Everything in the arguments of the `RUN` instructions are things that you might run locally to prepare an environment to run our application. Note, how I have put a bunch of operations under a single `RUN` command. Why did I do this?
+This Dockerfile is a little more complicated than the one we used for model training, but some things should look familiar. Everything in the arguments of the `RUN` instructions are things that you might run locally to prepare an environment to run our application. Note, how I have put a couple of operations under a single `RUN` command. Why did I do this?
 
-Well, remember how a Docker image is built up from "layers" that are versioned in a repository? If I put each of the `apt-get` or `pip` commands into separate `RUN` instructions, then those would build up more and more layers that would always be versioned with the Docker image. By combining them, I can perform some clean up at the end of all the installation (`rm -rf ...`) to get rid of cached info and other things I don't need. If the clean up was in a separate `RUN` instruction, it would basically have no effect on the overall size of the image.
+Well, remember how a Docker image is built up from "layers" that are versioned in a repository? If I put each of the `apt-get` or `pip` commands into separate `RUN` instructions, then those would build up more and more layers that would always be versioned with the Docker image. By combining them, I can perform some clean up at the end of all the installation to get rid of cached info and other things I don't need. If such a clean up was in a separate `RUN` instruction, it would basically have no effect on the overall size of the image.
 
 Also, you will notice two new instructions in this Dockerfile that weren't in the model training Dockerfile:
 
@@ -94,7 +80,7 @@ $ python api.py
 The `api.py` looks for an environmental variable `MODEL_FILE`, which should be set to location of the serialized model that was the output of our model training container. Once, that code is running, it will serve predictions on port 5000. For example, you could visit the following address in a browser (or via curl, postman, etc.) to get a prediction response in the form of JSON (assuming you are running the code locally):
 
 ```
-http://localhost:5000/prediction\?slength\=1.5\&swidth\=0.7\&plength\=1.3\&pwidth\=0.3
+http://localhost:5000/prediction?slength=1.5&swidth=0.7&plength=1.3&pwidth=0.3
 ``` 
 
 When we run the code in the container, we will need to map the port 5000 inside of the container to a port outside of the container (such that we can use the service), map a volume with the `model.pkl` file into the container, and set the environmental variable `MODEL_FILE` in the container to specify the model file. Thus, to start the prediction service, run: 
@@ -110,7 +96,7 @@ where you would replace `<your image tag>` with the name of the Docker In this c
 - `-e MODEL_FILE='/data/model.pkl'` sets the `MODEL_FILE` environmental variable in the container to the location of `model.pkl` in the container.
 - `-p 5000:5000` maps port 5000 inside the container to port 5000 on our localhost. 
 
-With this container running, you should be able to obtain a prediction from the service by visiting `http://localhost:5000/prediction\?slength\=1.5\&swidth\=0.7\&plength\=1.3\&pwidth\=0.3` in a browser (or via curl, postman, etc.). Try changing the `slength`, `swidth`, etc. parameters in the URL to get different predictions. Once you are done, you can remove the service via `CTRL+C`.
+With this container running, you should be able to obtain a prediction from the service by visiting `http://localhost:5000/prediction?slength=1.5&swidth=0.7&plength=1.3&pwidth=0.3` in a browser (or via curl, postman, etc.). Try changing the `slength`, `swidth`, etc. parameters in the URL to get different predictions. Once you are done, you can remove the service via `CTRL+C`.
 
 As excercises, look at the `docker run` reference docs to try and figure out how to:
 
